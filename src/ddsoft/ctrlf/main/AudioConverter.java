@@ -4,11 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFileFormat.Type;
@@ -26,6 +24,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  *
  */
 public class AudioConverter {
+	// Debug flag
+	private static final boolean DEBUG = true;
 	
 	/**
 	 * Creates a readable report for the audio file format
@@ -144,23 +144,9 @@ public class AudioConverter {
 
 		try
 		{
-			// Fetch the audio file format of the input file
-			System.out.println(generateFormatReport(inputFilename));
-			
-			// Check if the input file is already a RIFF
-			// If so, just copy the file to the expected outputFilename
-			/*
-			if (isRIFFWav(inputFilename))
-			{
-				System.out.println("Input file is ALREADY RIFF");
-				Files.copy((new File(inputFilename)).toPath(),
-						   (new File(outputFilename)).toPath(),
-						   StandardCopyOption.REPLACE_EXISTING);
-				result = true;
-			}
-			else
-			{
-			*/
+			// Debug message: generate report of the input format
+			if (DEBUG)
+				System.out.println(generateFormatReport(inputFilename));
 
 			// Output format for conversion
 			AudioFormat outputFormat = new AudioFormat(16000, 16, 1, true, false);
@@ -170,12 +156,16 @@ public class AudioConverter {
 			saveBytesToAudioFile(outputData, outputFilename, outputFormat);
 			// If we got here, everything went smoothly
 			result = true;
-
-			//}
 		}
 		catch (Exception e)
 		{
 			System.out.println("Problem converting to RIFF Wav: " + e.getMessage());
+		}
+		
+		// Debug info
+		if (DEBUG && isRIFFWav(outputFilename))
+		{
+			System.out.println("File converted to RIFF successfully");
 		}
 
 		return result;
