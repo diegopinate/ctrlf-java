@@ -36,11 +36,8 @@ public class CtrlfMain {
 		String transcription = "";
 
 		// Step 1: Convert file to RIFF WAV
-		// TO-DO
 		AudioConverter.convertToRIFF(inputFilename, outputFilename);
 		
-		System.exit(0);
-
 		// Step 2: Transcribe audio
 		try
 		{
