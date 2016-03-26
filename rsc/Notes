@@ -1,0 +1,11 @@
+DDSoft
+
+Libraries used:
+
+
+Sphinx-4: 	CMU Library that provides speech recognition.
+			can only work if the format is WAV RIFF 16,000 or 8,000 Hz Sample Rate (16-bit)
+
+
+Tritonus:	Sound Converter library, will be needed to convert all potential sound
+			to the correct WAV format
