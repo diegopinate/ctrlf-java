@@ -1,5 +1,4 @@
-# ctrlf-java
-Ctrl-F Java
+# Ctrl-F Java
 
 **Eclipse project**
 
