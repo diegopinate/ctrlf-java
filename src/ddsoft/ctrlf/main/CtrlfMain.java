@@ -37,12 +37,14 @@ public class CtrlfMain {
 
 		// Step 1: Convert file to RIFF WAV
 		// TO-DO
-		AudioConverter.ConvertToRIFF(inputFilename, outputFilename);
+		AudioConverter.convertToRIFF(inputFilename, outputFilename);
+		
+		System.exit(0);
 
 		// Step 2: Transcribe audio
 		try
 		{
-			transcription = AudioTranscriber.Transcribe(outputFilename);
+			transcription = AudioTranscriber.transcribe(outputFilename);
 			System.out.println("Transcript: " + transcription);
 		}
 		catch (Exception e)

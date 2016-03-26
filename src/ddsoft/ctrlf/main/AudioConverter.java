@@ -1,6 +1,17 @@
 package ddsoft.ctrlf.main;
 
-import org.tritonus.core.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  * Audio Converter
@@ -11,6 +22,67 @@ import org.tritonus.core.*;
  *
  */
 public class AudioConverter {
+	
+	/**
+	 * Creates a readable report for the audio file format
+	 * This is for debugging purposes
+	 * @param fmt Audio format
+	 * @return Report of audio format
+	 */
+	public static String generateFormatReport(String filename) throws Exception
+	{
+		String report = "";
+		AudioFileFormat inputFileFormat = AudioSystem.getAudioFileFormat(new File(filename));
+		AudioInputStream ais = AudioSystem.getAudioInputStream(new File(filename));
+		AudioFormat audioFormat = ais.getFormat();
+
+		report += "Filename: " + filename;
+		report += "\nFile Format Type: "	+inputFileFormat.getType();
+		report += "\nFile Format String: "+inputFileFormat.toString();
+		report += "\nFile lenght: "		+inputFileFormat.getByteLength();
+		report += "\nFrame length: "		+inputFileFormat.getFrameLength();
+		report += "\nChannels: "			+audioFormat.getChannels();
+		report += "\nEncoding: "			+audioFormat.getEncoding();
+		report += "\nFrame Rate: "		+audioFormat.getFrameRate();
+		report += "\nFrame Size: "		+audioFormat.getFrameSize();
+		report += "\nSample Rate: "		+audioFormat.getSampleRate();
+		report += "\nSample size (bits): "+audioFormat.getSampleSizeInBits();
+		report += "\nBig endian: "		+audioFormat.isBigEndian();
+		report += "\nAudio Format String: "+audioFormat.toString();
+		report += "\n";
+		
+		ais.close();
+
+		return report;
+	}
+	
+	/**
+	 * Returns true if the filename is a RIFF Wave file
+	 * @param filename Filename of audio file
+	 * @return True if RIFF format
+	 */
+	public static boolean isRIFFWav(String filename)
+	{
+		boolean result = false;
+
+		try
+		{
+			byte[] buffer = new byte[4];
+			FileInputStream fis = new FileInputStream(filename);
+			fis.read(buffer);
+			// Check first 4 bytes that should contain header
+			result = (buffer[0] == 'R' && buffer[1] == 'I' && buffer[2] == 'F' && buffer[3] == 'F');
+			// Close input stream
+			fis.close();
+		}
+		catch (Exception e)
+		{
+			System.out.println("Could not check RIFF format: " + e.getMessage());
+		}
+
+		return result;
+	}
+
 	/**
 	 * Converts an input file into RIFF format
 	 * and saves it to the output filename path
@@ -18,9 +90,64 @@ public class AudioConverter {
 	 * @param outputFilename Filename used to save
 	 * @return True if conversion was possible, false otherwise
 	 */
-	public static boolean ConvertToRIFF(String inputFilename, String outputFilename)
+	public static boolean convertToRIFF(String inputFilename, String outputFilename)
 	{
-		// TO-DO
-		return false;
+		boolean result = false;
+
+		try
+		{
+			// Fetch the audio file format of the input file
+			System.out.println(generateFormatReport(inputFilename));
+			
+			// Check if the input file is already a RIFF
+			// If so, just copy the file to the expected outputFilename
+			if (isRIFFWav(inputFilename))
+			{
+				System.out.println("Input file is ALREADY RIFF");
+				Files.copy((new File(inputFilename)).toPath(),
+						   (new File(outputFilename)).toPath(),
+						   StandardCopyOption.REPLACE_EXISTING);
+				result = true;
+			}
+		}
+		catch (Exception e)
+		{
+
+		}
+
+		return result;
+	}
+
+	/**
+	 * @param sourceBytes
+	 * @param audioFormat
+	 * @return
+	 * @throws UnsupportedAudioFileException
+	 * @throws IllegalArgumentException
+	 * @throws Exception
+	 */
+	public static byte [] getAudioDataBytes(byte [] sourceBytes, AudioFormat audioFormat) throws UnsupportedAudioFileException, IllegalArgumentException, Exception {
+	    if(sourceBytes == null || sourceBytes.length == 0 || audioFormat == null){
+	        throw new IllegalArgumentException("Illegal Argument passed to this method");
+	    }
+
+	    try (final ByteArrayInputStream bais = new ByteArrayInputStream(sourceBytes);
+	         final AudioInputStream sourceAIS = AudioSystem.getAudioInputStream(bais)) {
+	        AudioFormat sourceFormat = sourceAIS.getFormat();
+	        AudioFormat convertFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16, sourceFormat.getChannels(), sourceFormat.getChannels()*2, sourceFormat.getSampleRate(), false);
+	        try (final AudioInputStream convert1AIS = AudioSystem.getAudioInputStream(convertFormat, sourceAIS);
+	             final AudioInputStream convert2AIS = AudioSystem.getAudioInputStream(audioFormat, convert1AIS);
+	             final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+	            byte [] buffer = new byte[8192];
+	            while(true){
+	                int readCount = convert2AIS.read(buffer, 0, buffer.length);
+	                if(readCount == -1){
+	                    break;
+	                }
+	                baos.write(buffer, 0, readCount);
+	            }
+	            return baos.toByteArray();
+	        }
+	    }
 	}
 }

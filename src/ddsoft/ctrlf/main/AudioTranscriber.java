@@ -24,7 +24,7 @@ public class AudioTranscriber {
 	 * @param filename Input file name
 	 * @return Returns the transcription of the audio file
 	 */
-	public static String Transcribe(String audioFilename) throws Exception
+	public static String transcribe(String audioFilename) throws Exception
 	{
         Configuration configuration = new Configuration();
 
