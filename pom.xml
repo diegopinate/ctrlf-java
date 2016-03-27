@@ -23,7 +23,11 @@
         <url>https://oss.sonatype.org/content/repositories/snapshots</url>
           <releases><enabled>false</enabled></releases>
       <snapshots><enabled>true</enabled></snapshots>
-     </repository>
+    </repository>
+    <repository>
+   		<id>xuggle repo</id>
+   		<url>http://xuggle.googlecode.com/svn/trunk/repo/share/java/</url>
+  	</repository>
   </repositories>
   <dependencies>
   	<dependency>
@@ -57,5 +61,10 @@
         	</exclusion>
     	</exclusions>
 	</dependency>
+	<dependency>
+   		<groupId>xuggle</groupId>
+   		<artifactId>xuggle-xuggler</artifactId>
+   		<version>5.2</version>
+  	</dependency>
   </dependencies>
 </project>
